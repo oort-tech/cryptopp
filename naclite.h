@@ -53,7 +53,7 @@
 #include "config.h"
 #include "stdcpp.h"
 
-#if defined(NO_OS_DEPENDENCE)
+#if defined(NO_OS_DEPENDENCE) || !defined(OS_RNG_AVAILABLE)
 # define CRYPTOPP_DISABLE_NACL 1
 #endif
 
@@ -391,7 +391,7 @@ int crypto_sign_keypair(byte *pk, byte *sk);
 ///   added for interop with some anonymous routing protocols.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 int crypto_sign_sk2pk(byte *pk, const byte *sk);
 
 /// \brief Produce a keystream using XSalsa20

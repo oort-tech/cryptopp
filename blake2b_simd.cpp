@@ -29,6 +29,7 @@
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
 # define CRYPTOPP_DISABLE_ALTIVEC 1
 # undef CRYPTOPP_POWER7_AVAILABLE
+# undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
@@ -38,12 +39,11 @@
 # include <smmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+// C1189: error: This header is specific to ARM targets
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(_M_ARM64)
 # include <arm_neon.h>
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>

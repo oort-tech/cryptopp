@@ -39,6 +39,7 @@
 #include "rc5.h"
 #include "skipjack.h"
 #include "blowfish.h"
+#include "chachapoly.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)
@@ -70,6 +71,9 @@ void RegisterFactories4()
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<CCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<EAX<AES> >();
+	RegisterAuthenticatedSymmetricCipherDefaultFactories<ChaCha20Poly1305>();
+	RegisterAuthenticatedSymmetricCipherDefaultFactories<XChaCha20Poly1305>();
+
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<ARIA> >();  // For test vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<ARIA> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Camellia> >();
@@ -88,7 +92,9 @@ void RegisterFactories4()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<TEA> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<XTEA> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<CAST128> >();
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SKIPJACK> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SKIPJACK> >();
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SKIPJACK> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();

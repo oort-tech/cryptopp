@@ -10,7 +10,6 @@
 
 #include "simon.h"
 #include "misc.h"
-#include "adv_simd.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both simon.cpp and simon-simd.cpp.
@@ -18,6 +17,7 @@
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
+# include "adv_simd.h"
 # include <pmmintrin.h>
 # include <tmmintrin.h>
 #endif
@@ -26,23 +26,26 @@
 # include <ammintrin.h>
 #endif
 
-#if defined(__AVX512F__) && defined(__AVX512VL__)
+#if defined(__AVX512F__)
 # define CRYPTOPP_AVX512_ROTATE 1
 # include <immintrin.h>
 #endif
 
+// C1189: error: This header is specific to ARM targets
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# include <arm_neon.h>
+# include "adv_simd.h"
+# ifndef _M_ARM64
+#  include <arm_neon.h>
+# endif
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+# include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
 
@@ -59,6 +62,14 @@ using CryptoPP::vec_swap;  // SunCC
 // *************************** ARM NEON ************************** //
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
+
+// Missing from Microsoft's ARM A-32 implementation
+#if defined(_MSC_VER) && !defined(_M_ARM64)
+inline uint64x2_t vld1q_dup_u64(const uint64_t* ptr)
+{
+	return vmovq_n_u64(*ptr);
+}
+#endif
 
 template <class T>
 inline T UnpackHigh64(const T& a, const T& b)
@@ -97,13 +108,8 @@ inline uint64x2_t RotateRight64(const uint64x2_t& val)
 template <>
 inline uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
-    const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
-    const uint8x16_t mask = vld1q_u8(maskb);
-#else
     const uint8_t maskb[16] = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
     const uint8x16_t mask = vld1q_u8(maskb);
-#endif
 
     return vreinterpretq_u64_u8(
         vqtbl1q_u8(vreinterpretq_u8_u64(val), mask));
@@ -113,13 +119,8 @@ inline uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
 template <>
 inline uint64x2_t RotateRight64<8>(const uint64x2_t& val)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
-    const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
-    const uint8x16_t mask = vld1q_u8(maskb);
-#else
     const uint8_t maskb[16] = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
     const uint8x16_t mask = vld1q_u8(maskb);
-#endif
 
     return vreinterpretq_u64_u8(
         vqtbl1q_u8(vreinterpretq_u8_u64(val), mask));

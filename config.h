@@ -68,6 +68,12 @@
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
+// Some Clang and SunCC cannot handle mixed asm with positional arguments,
+// where the body is Intel style with no prefix and the templates are
+// AT&T style. Define this is the Makefile misdetects the configuration.
+// Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+// #define CRYPTOPP_DISABLE_MIXED_ASM 1
+
 // Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
 // end of this file. Some compilers and standard C++ headers advertise C++11
 // but they are really just C++03 with some additional C++11 headers and
@@ -92,7 +98,10 @@
 //   the version of the library the headers came from. It is not
 //   necessarily the version of the library built as a shared object if
 //   versions are inadvertently mixed and matched.
-#define CRYPTOPP_VERSION 710
+#define CRYPTOPP_MAJOR 8
+#define CRYPTOPP_MINOR 2
+#define CRYPTOPP_REVISION 0
+#define CRYPTOPP_VERSION 820
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
 //   Be sure to add the trailing slash since its simple concatenation.
@@ -290,12 +299,6 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 10700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 20000)
 	#define CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE 1
 #endif
-
-// Some Clang cannot handle mixed asm with positional arguments, where the
-// body is Intel style with no prefix and the templates are AT&T style.
-// Define this is the Makefile misdetects the configuration.
-// Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
-// #define CRYPTOPP_DISABLE_MIXED_ASM 1
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
@@ -573,7 +576,7 @@ NAMESPACE_END
 // Requires Binutils 2.24
 #if !defined(CRYPTOPP_DISABLE_AVX2) && defined(CRYPTOPP_AVX_AVAILABLE) && \
 	(defined(__AVX2__) || (CRYPTOPP_MSC_VERSION >= 1800) || (__SUNPRO_CC >= 0x5130) || \
-	(CRYPTOPP_GCC_VERSION >= 40700) || (__INTEL_COMPILER >= 1400) || \
+	(CRYPTOPP_GCC_VERSION >= 40900) || (__INTEL_COMPILER >= 1400) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 30100) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40600))
 #define CRYPTOPP_AVX2_AVAILABLE 1
 #endif
@@ -645,7 +648,7 @@ NAMESPACE_END
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
       (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_CLANG_VERSION >= 30300) || \
-      (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_NEON_AVAILABLE 1
 #   define CRYPTOPP_ARM_ASIMD_AVAILABLE 1
 #  endif  // Compilers
@@ -658,7 +661,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -670,7 +673,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -694,7 +697,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_SHA1_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA2_AVAILABLE 1
 #  endif  // Compilers
@@ -707,7 +710,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
-      (CRYPTOPP_MSC_VERSION >= 2100)
+      (CRYPTOPP_MSC_VERSION >= 5000)
 #   define CRYPTOPP_ARM_SHA512_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA3_AVAILABLE 1
 #  endif  // Compilers
@@ -720,7 +723,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_SM3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
-      (CRYPTOPP_MSC_VERSION >= 2100)
+      (CRYPTOPP_MSC_VERSION >= 5000)
 #   define CRYPTOPP_ARM_SM3_AVAILABLE 1
 #   define CRYPTOPP_ARM_SM4_AVAILABLE 1
 #  endif  // Compilers
@@ -921,7 +924,7 @@ NAMESPACE_END
 
 #ifndef NO_OS_DEPENDENCE
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #define CRYPTOPP_WIN32_AVAILABLE
 #endif
 

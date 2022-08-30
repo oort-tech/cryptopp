@@ -39,9 +39,10 @@
 ///   builtins. When using XLC with -qxlcompatmacros the compiler pretends to
 ///   be GCC, Clang and XLC all at once but it can only consume it's variety
 ///   of builtins.
-/// \details At Crypto++ 8.0 the various VectorFunc{Name} were renamed to
-///   VecFunc{Name}. For example, VectorAnd was changed to VecAnd. The name
-///   change helped consolidate two slightly different implementations.
+/// \details At Crypto++ 8.0 the various <tt>Vector{FuncName}</tt> were
+///   renamed to <tt>Vec{FuncName}</tt>. For example, <tt>VectorAnd</tt> was
+///   changed to <tt>VecAnd</tt>. The name change helped consolidate two
+///   slightly different implementations.
 /// \since Crypto++ 6.0, LLVM Clang compiler support since Crypto++ 8.0
 
 // Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8 when detecting actual
@@ -56,7 +57,7 @@
 //
 //   inline uint32x4_p VecLoad(const byte src[16])
 //   {
-//   #if defined(_ARCH_PWR7)
+//   #if defined(_ARCH_PWR8)
 //       return (uint32x4_p) *(uint8x16_p*)((byte*)src);
 //   #else
 //       return VecLoad_ALTIVEC(src);
@@ -127,7 +128,7 @@ typedef __vector unsigned short  uint16x8_p;
 /// \since Crypto++ 6.0
 typedef __vector unsigned int    uint32x4_p;
 
-#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
 /// \details uint64x2_p is available on POWER7 and above. Some supporting
 ///   functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>), did not
@@ -136,7 +137,7 @@ typedef __vector unsigned int    uint32x4_p;
 ///   __vector unsigned long long
 /// \since Crypto++ 6.0
 typedef __vector unsigned long long uint64x2_p;
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 
 /// \brief The 0 vector
 /// \returns a 32-bit vector of 0's
@@ -175,7 +176,8 @@ inline T VecReverse(const T data)
 #endif
 }
 
-//////////////////////// Loads ////////////////////////
+/// \name LOAD OPERATIONS
+//@{
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
@@ -250,7 +252,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -278,7 +280,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -326,7 +328,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     return VecLoad(off, (const byte*)src);
 }
 
-#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Loads a vector from a word array
 /// \param src the word array
@@ -365,7 +367,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     return (uint64x2_p)VecLoad(off, (const byte*)src);
 }
 
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
@@ -380,7 +382,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -388,10 +390,10 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 #  else
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
     CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
     return (uint32x4_p)vec_ld(0, (byte*)src);
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from an aligned byte array
@@ -408,7 +410,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -416,10 +418,10 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 #  else
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
     CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
     return (uint32x4_p)vec_ld(off, (byte*)src);
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -437,7 +439,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(0, (byte*)src);
@@ -453,13 +455,13 @@ inline uint32x4_p VecLoadBE(const byte src[16])
        return (uint32x4_p)VecReverse(vec_vsx_ld(0, (byte*)src));
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad((const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad((const byte*)src));
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -478,7 +480,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(off, (byte*)src);
@@ -494,16 +496,19 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
        return (uint32x4_p)VecReverse(vec_vsx_ld(off, (byte*)src));
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad(off, (const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
-//////////////////////// Stores ////////////////////////
+//@}
+
+/// \name STORE OPERATIONS
+//@{
 
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
@@ -599,7 +604,7 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -630,7 +635,7 @@ inline void VecStore(const T data, byte dest[16])
 template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -745,7 +750,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
 template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
@@ -761,13 +766,13 @@ inline void VecStoreBE(const T data, byte dest[16])
        vec_vsx_st((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a byte array
@@ -789,7 +794,7 @@ inline void VecStoreBE(const T data, byte dest[16])
 template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, off, (byte*)dest);
@@ -805,13 +810,13 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
        vec_vsx_st((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a word array
@@ -857,44 +862,10 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
     return VecStoreBE((uint8x16_p)data, off, (byte*)dest);
 }
 
-//////////////////////// Miscellaneous ////////////////////////
+//@}
 
-/// \brief Permutes a vector
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec the vector
-/// \param mask vector mask
-/// \returns vector
-/// \details VecPermute() returns a new vector from vec based on
-///   mask. mask is an uint8x16_p type vector. The return
-///   vector is the same type as vec.
-/// \par Wraps
-///   vec_perm
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VecPermute(const T1 vec, const T2 mask)
-{
-    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
-}
-
-/// \brief Permutes two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \param mask vector mask
-/// \returns vector
-/// \details VecPermute() returns a new vector from vec1 and vec2
-///   based on mask. mask is an uint8x16_p type vector. The return
-///   vector is the same type as vec1.
-/// \par Wraps
-///   vec_perm
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
-{
-    return (T1)vec_perm(vec1, (T1)vec2, (uint8x16_p)mask);
-}
+/// \name LOGICAL OPERATIONS
+//@{
 
 /// \brief AND two vectors
 /// \tparam T1 vector type
@@ -946,6 +917,11 @@ inline T1 VecXor(const T1 vec1, const T2 vec2)
 {
     return (T1)vec_xor(vec1, (T1)vec2);
 }
+
+//@}
+
+/// \name ARITHMETIC OPERATIONS
+//@{
 
 /// \brief Add two vectors
 /// \tparam T1 vector type
@@ -1011,6 +987,48 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     cy = vec_perm(cy, zero, cmask);
     return vec_add(vec_add(vec1, vec2), cy);
 #endif
+}
+
+//@}
+
+/// \name OTHER OPERATIONS
+//@{
+
+/// \brief Permutes a vector
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec the vector
+/// \param mask vector mask
+/// \returns vector
+/// \details VecPermute() returns a new vector from vec based on
+///   mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec.
+/// \par Wraps
+///   vec_perm
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VecPermute(const T1 vec, const T2 mask)
+{
+    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
+}
+
+/// \brief Permutes two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \param mask vector mask
+/// \returns vector
+/// \details VecPermute() returns a new vector from vec1 and vec2
+///   based on mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec1.
+/// \par Wraps
+///   vec_perm
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
+{
+    return (T1)vec_perm(vec1, (T1)vec2, (uint8x16_p)mask);
 }
 
 /// \brief Shift a vector left
@@ -1172,6 +1190,49 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
+/// \brief Shift a packed vector left
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftLeft() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///   vec_sl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
+{
+    const uint32x4_p m = {C, C, C, C};
+    return vec_sl(vec, m);
+}
+
+/// \brief Merge two vectors
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \par Wraps
+///   vec_mergeh
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeHigh(const T vec1, const T vec2)
+{
+    return vec_mergeh(vec1, vec2);
+}
+
+/// \brief Merge two vectors
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \par Wraps
+///   vec_mergel
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeLow(const T vec1, const T vec2)
+{
+    return vec_mergel(vec1, vec2);
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
@@ -1188,6 +1249,22 @@ inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
 {
     const uint64x2_p m = {C, C};
     return vec_rl(vec, m);
+}
+
+/// \brief Shift a packed vector left
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftLeft() rotates each element in a packed vector by bit count.
+/// \details VecShiftLeft() with 64-bit elements is available on POWER8 and above.
+/// \par Wraps
+///   vec_sl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
+{
+    const uint64x2_p m = {C, C};
+    return vec_sl(vec, m);
 }
 
 #endif
@@ -1207,6 +1284,21 @@ inline uint32x4_p VecRotateRight(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
+/// \brief Shift a packed vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftRight() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///   vec_rl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint32x4_p VecShiftRight(const uint32x4_p vec)
+{
+    const uint32x4_p m = {C, C, C, C};
+    return vec_sr(vec, m);
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector right
@@ -1223,6 +1315,22 @@ inline uint64x2_p VecRotateRight(const uint64x2_p vec)
 {
     const uint64x2_p m = {64-C, 64-C};
     return vec_rl(vec, m);
+}
+
+/// \brief Shift a packed vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftRight() rotates each element in a packed vector by bit count.
+/// \details VecShiftRight() with 64-bit elements is available on POWER8 and above.
+/// \par Wraps
+///   vec_sr
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint64x2_p VecShiftRight(const uint64x2_p vec)
+{
+    const uint64x2_p m = {C, C};
+    return vec_sr(vec, m);
 }
 
 #endif
@@ -1254,10 +1362,12 @@ inline T VecSwapWords(const T vec)
 template <class T>
 inline T VecGetLow(const T val)
 {
-    //const T zero = {0};
-    //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
-    //return (T)vec_perm(zero, val, mask);
+#if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
+    const T zero = {0};
+    return (T)VecMergeLow((uint64x2_p)zero, (uint64x2_p)val);
+#else
     return VecShiftRightOctet<8>(VecShiftLeftOctet<8>(val));
+#endif
 }
 
 /// \brief Extract a dword from a vector
@@ -1274,10 +1384,12 @@ inline T VecGetLow(const T val)
 template <class T>
 inline T VecGetHigh(const T val)
 {
-    //const T zero = {0};
-    //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
-    //return (T)vec_perm(zero, val, mask);
+#if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
+    const T zero = {0};
+    return (T)VecMergeHigh((uint64x2_p)zero, (uint64x2_p)val);
+#else
     return VecShiftRightOctet<8>(val);
+#endif
 }
 
 /// \brief Compare two vectors
@@ -1314,9 +1426,157 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
     return 0 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
 }
 
+//@}
+
 //////////////////////// Power8 Crypto ////////////////////////
 
 #if defined(__CRYPTO__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+/// \name POLYNOMIAL MULTIPLICATION
+//@{
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply() performs polynomial multiplication. POWER8
+///   polynomial multiplication multiplies the high and low terms, and then
+///   XOR's the high and low products. That is, the result is <tt>ah*bh XOR
+///   al*bl</tt>. It is different behavior than Intel polynomial
+///   multiplication. To obtain a single product without the XOR, then set
+///   one of the high or low terms to 0. For example, setting <tt>ah=0</tt>
+///   results in <tt>0*bh XOR al*bl = al*bl</tt>.
+/// \par Wraps
+///   __vpmsumw, __builtin_altivec_crypto_vpmsumw and __builtin_crypto_vpmsumw.
+/// \since Crypto++ 8.1
+inline uint32x4_p VecPolyMultiply(const uint32x4_p& a, const uint32x4_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return __vpmsumw (a, b);
+#elif defined(__clang__)
+    return __builtin_altivec_crypto_vpmsumw (a, b);
+#else
+    return __builtin_crypto_vpmsumw (a, b);
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply() performs polynomial multiplication. POWER8
+///   polynomial multiplication multiplies the high and low terms, and then
+///   XOR's the high and low products. That is, the result is <tt>ah*bh XOR
+///   al*bl</tt>. It is different behavior than Intel polynomial
+///   multiplication. To obtain a single product without the XOR, then set
+///   one of the high or low terms to 0. For example, setting <tt>ah=0</tt>
+///   results in <tt>0*bh XOR al*bl = al*bl</tt>.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.1
+inline uint64x2_p VecPolyMultiply(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return __vpmsumd (a, b);
+#elif defined(__clang__)
+    return __builtin_altivec_crypto_vpmsumd (a, b);
+#else
+    return __builtin_crypto_vpmsumd (a, b);
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply00LE() performs polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x00)</tt>.
+///  The <tt>0x00</tt> indicates the low 64-bits of <tt>a</tt> and <tt>b</tt>
+///  are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply00LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(VecGetHigh(a), VecGetHigh(b)));
+#else
+    return VecPolyMultiply(VecGetHigh(a), VecGetHigh(b));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply01LE performs() polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x01)</tt>.
+///  The <tt>0x01</tt> indicates the low 64-bits of <tt>a</tt> and high
+///  64-bits of <tt>b</tt> are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply01LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(a, VecGetHigh(b)));
+#else
+    return VecPolyMultiply(a, VecGetHigh(b));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply10LE() performs polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x10)</tt>.
+///  The <tt>0x10</tt> indicates the high 64-bits of <tt>a</tt> and low
+///  64-bits of <tt>b</tt> are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply10LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(VecGetHigh(a), b));
+#else
+    return VecPolyMultiply(VecGetHigh(a), b);
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply11LE() performs polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x11)</tt>.
+///  The <tt>0x11</tt> indicates the high 64-bits of <tt>a</tt> and <tt>b</tt>
+///  are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply11LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(VecGetLow(a), b));
+#else
+    return VecPolyMultiply(VecGetLow(a), b);
+#endif
+}
+
+//@}
+
+/// \name AES ENCRYPTION
+//@{
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
@@ -1418,6 +1678,11 @@ inline T1 VecDecryptLast(const T1 state, const T2 key)
 #endif
 }
 
+//@}
+
+/// \name SHA DIGESTS
+//@{
+
 /// \brief SHA256 Sigma functions
 /// \tparam func function
 /// \tparam fmask function mask
@@ -1467,6 +1732,8 @@ inline T VecSHA512(const T vec)
     CRYPTOPP_ASSERT(0);
 #endif
 }
+
+//@}
 
 #endif  // __CRYPTO__
 

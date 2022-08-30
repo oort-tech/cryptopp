@@ -38,8 +38,8 @@
 // https://github.com/weidai11/cryptopp/issues/743
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
 # define CRYPTOPP_DISABLE_ALTIVEC 1
-# define CRYPTOPP_POWER7_ALTIVEC 1
 # undef CRYPTOPP_POWER7_AVAILABLE
+# undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
@@ -49,12 +49,11 @@
 # include <smmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+// C1189: error: This header is specific to ARM targets
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(_M_ARM64)
 # include <arm_neon.h>
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
@@ -693,7 +692,7 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if (CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
 
 inline uint32x4_p VecLoad32(const void* p)
 {
@@ -839,7 +838,7 @@ inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b,
     const uint32x4_p t0 = VectorSet32<W,X>(a, b);
     const uint32x4_p t1 = VectorSet32<Y,Z>(c, d);
 
-    // Power7 follows SSE2's implementation, and this is _mm_set_epi32.
+    // PowerPC follows SSE2's implementation, and this is _mm_set_epi32.
     const uint8x16_p mask = {20,21,22,23, 16,17,18,19, 4,5,6,7, 0,1,2,3};
     return VecPermute(t0, t1, mask);
 }
@@ -849,6 +848,7 @@ uint32x4_p VectorSet32<2,0,2,0>(const uint32x4_p a, const uint32x4_p b,
                                 const uint32x4_p c, const uint32x4_p d)
 {
     // a=b, c=d, mask is {2,0, 2,0}
+    CRYPTOPP_UNUSED(b); CRYPTOPP_UNUSED(d);
     const uint8x16_p mask = {16,17,18,19, 24,25,26,27, 0,1,2,3, 8,9,10,11};
     return VecPermute(a, c, mask);
 }
@@ -858,6 +858,7 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
                                 const uint32x4_p c, const uint32x4_p d)
 {
     // a=b, c=d, mask is {3,1, 3,1}
+    CRYPTOPP_UNUSED(b); CRYPTOPP_UNUSED(d);
     const uint8x16_p mask = {20,21,22,23, 28,29,30,31, 4,5,6,7, 12,13,14,15};
     return VecPermute(a, c, mask);
 }
@@ -1014,11 +1015,11 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
     VecStore32LE(state.h()+0, VecXor(ff0, VecXor(row1, row3)));
     VecStore32LE(state.h()+4, VecXor(ff1, VecXor(row2, row4)));
 }
-#endif  // CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER8_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE)
 
-void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
+void BLAKE2_Compress32_POWER8(const byte* input, BLAKE2s_State& state)
 {
     BLAKE2_Compress32_CORE(input, state);
 }
